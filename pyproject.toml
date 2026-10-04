@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "app", "starter_imperative"]
