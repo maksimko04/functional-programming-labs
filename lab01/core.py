@@ -55,7 +55,9 @@ def make_processor(
             with_premium(
                 p,
                 final_premium(
-                    p["base_premium"], risk_factor(p["risk"]), loyalty_discount(p["years"])
+                    p["base_premium"],
+                    risk_factor(p["risk"]),
+                    loyalty_discount(p["years"]),
                 ),
             )
             for p in policies

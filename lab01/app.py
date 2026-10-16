@@ -24,14 +24,22 @@ def load_policies(path: Path) -> list[Policy]:
 
 
 def render_report(result: Report) -> str:
-    lines = [f"Policy: {p['id']} premium: {p['premium']:.2f}" for p in result["policies"]]
-    return "\n".join([*lines, f"Count: {result['count']}", f"Total: {result['total_premium']:.2f}"])
+    lines = [
+        f"Policy: {p['id']} premium: {p['premium']:.2f}" for p in result["policies"]
+    ]
+    return "\n".join(
+        [*lines, f"Count: {result['count']}", f"Total: {result['total_premium']:.2f}"]
+    )
 
 
 def main(argv: list[str]) -> None:
     policies = load_policies(Path(argv[1])) if len(argv) > 1 else SAMPLE
     result = process_policies_pure(
-        policies, min_premium=500, risk_rates=RISK_RATES, discount_per_year=0.02, max_discount=0.3
+        policies,
+        min_premium=500,
+        risk_rates=RISK_RATES,
+        discount_per_year=0.02,
+        max_discount=0.3,
     )
     print(render_report(result))
     total, stamp = stamp_total(result["total_premium"], time.time)

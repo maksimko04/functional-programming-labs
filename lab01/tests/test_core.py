@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 import pytest
-
 from app import render_report
 from core import (
     Policy,
@@ -24,7 +23,11 @@ RATES = {"low": 0.9, "medium": 1.0, "high": 1.5}
 
 def run(policies: list[Policy]) -> Report:
     return process_policies_pure(
-        policies, min_premium=500.0, risk_rates=RATES, discount_per_year=0.02, max_discount=0.3
+        policies,
+        min_premium=500.0,
+        risk_rates=RATES,
+        discount_per_year=0.02,
+        max_discount=0.3,
     )
 
 
@@ -37,7 +40,11 @@ def test_referential_transparency(sample_policies: list[Policy]) -> None:
 def test_no_mutation(sample_policies: list[Policy]) -> None:
     original = deepcopy(sample_policies)
     process_policies_pure(
-        sample_policies, min_premium=0, risk_rates=RATES, discount_per_year=0.0, max_discount=0.0
+        sample_policies,
+        min_premium=0,
+        risk_rates=RATES,
+        discount_per_year=0.0,
+        max_discount=0.0,
     )
     assert sample_policies == original
 
@@ -62,7 +69,13 @@ def test_final_premium() -> None:
 
 
 def test_with_premium_returns_new_dict() -> None:
-    policy: Policy = {"id": 1, "base_premium": 100.0, "risk": "low", "years": 0, "active": True}
+    policy: Policy = {
+        "id": 1,
+        "base_premium": 100.0,
+        "risk": "low",
+        "years": 0,
+        "active": True,
+    }
     new = with_premium(policy, 42.0)
     assert new == {**policy, "premium": 42.0}
     assert "premium" not in policy
