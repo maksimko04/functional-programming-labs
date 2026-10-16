@@ -27,10 +27,12 @@ SAMPLE: list[Policy] = [
 
 
 def load_policies(path: Path) -> list[Policy]:
+    """IO-адаптер: читає поліси з JSON-файлу."""
     return list(json.loads(path.read_text(encoding="utf-8")))
 
 
 def render_report(result: Report) -> str:
+    """Перетворює чистий результат на текст звіту (без друку)."""
     lines = [
         f"Policy: {p['id']} premium: {p['premium']:.2f}" for p in result["policies"]
     ]
@@ -48,6 +50,7 @@ def run(orders: list[Order]) -> None:
 
 
 def main(argv: list[str]) -> None:
+    """Точка входу: читання → чисте ядро → друк; час передається в ядро."""
     policies = load_policies(Path(argv[1])) if len(argv) > 1 else SAMPLE
     result = process_policies_pure(
         policies,

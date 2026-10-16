@@ -14,11 +14,12 @@
 
 | Файл | Призначення |
 |---|---|
-| `core.py` | Чисте ядро варіанта 13: `final_premium`, `with_premium`, `make_policy_processor` (фабрика обробника), `process_policies_pure`, фабрики політик `min_premium_filter` / `table_risk` / `years_discount`; додаткові вправи `compose`, `make_multiplier`, `stamp_total` (інжекція годинника); базове завдання з методички: `order_subtotal`, `with_total`, `make_processor(accept, apply_discount, apply_tax)`, `process_orders_pure`. Жодного I/O, глобалів і мутацій. |
+| `core.py` | Чисте ядро варіанта 13: `final_premium`, `with_premium`, `make_policy_processor` (фабрика обробника), `process_policies_pure`, фабрики політик `min_premium_filter` / `table_risk` / `years_discount`; додаткові вправи `compose`, `pipe`, `make_multiplier`, `stamp_total` (інжекція годинника); базове завдання з методички: `order_subtotal`, `with_total`, `make_processor(accept, apply_discount, apply_tax)`, `process_orders_pure`. Жодного I/O, глобалів і мутацій. |
 | `app.py` | Оболонка побічних ефектів: читання полісів із JSON, `render_report`, `run` (базове завдання), `print`, `time.time`. |
 | `starter_imperative.py` | Початковий імперативний код (`process_orders` з методички та `process_policies` за варіантом) — лишений для тестів еквівалентності. |
 | `tests/test_core.py` | pytest для варіанта 13: референтна прозорість, відсутність мутацій, збіг з імперативною версією, Callable-політики, `compose`, `make_multiplier`, `stamp_total`, `render_report`. |
 | `tests/test_orders.py` | pytest для базового завдання (замовлення): мінімальні тести з методички. |
+| `tests/test_properties.py` | property-based тести (Hypothesis): референтна прозорість, відсутність мутацій, інваріанти підсумку. |
 | `conftest.py` | Фікстури `sample_policies`, `sample_orders`. |
 
 Політики передаються як `Callable[[float], bool]` (фільтр за базовою премією), `Callable[[str], float]`

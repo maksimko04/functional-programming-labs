@@ -10,6 +10,7 @@ from core import (
     make_multiplier,
     make_policy_processor,
     min_premium_filter,
+    pipe,
     process_policies_pure,
     stamp_total,
     table_risk,
@@ -107,6 +108,7 @@ def test_compose_and_multiplier() -> None:
     assert discount_for(5) == pytest.approx(0.2)
     assert make_multiplier(3)(7) == 21
     assert compose(make_multiplier(2), make_multiplier(5))(1) == 10
+    assert pipe(1, make_multiplier(2), make_multiplier(5)) == 10
 
 
 def test_stamp_total_uses_injected_clock() -> None:
