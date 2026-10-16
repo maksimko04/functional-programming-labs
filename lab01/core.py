@@ -1,37 +1,34 @@
-"""Чисте ядро: обробка замовлень інтернет-магазину (варіант 1).
+"""Чисте ядро: розрахунок страхових премій (варіант 13).
 
 Жодного I/O, глобального стану чи мутації вхідних даних.
-Усі політики (фільтр, знижка, податок) передаються як Callable.
+Усі політики (фільтр, коефіцієнт ризику, знижка за стаж) передаються як Callable.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from typing import TypedDict, TypeVar
 
 
-class Item(TypedDict):
-    price: float
-    qty: int
-
-
-class Order(TypedDict, total=False):
+class Policy(TypedDict, total=False):
     id: int
-    items: list[Item]
-    paid: bool
-    total: float
+    base_premium: float
+    risk: str
+    years: int
+    active: bool
+    premium: float
 
 
 class Report(TypedDict):
     count: int
-    revenue: float
-    orders: list[Order]
+    total_premium: float
+    policies: list[Policy]
 
 
 FilterFn = Callable[[float], bool]
-DiscountFn = Callable[[float], float]
-TaxFn = Callable[[float], float]
-Processor = Callable[[Iterable[Order]], Report]
+RiskFn = Callable[[str], float]
+DiscountFn = Callable[[int], float]
+Processor = Callable[[Iterable[Policy]], Report]
 NowFn = Callable[[], float]
 
 A = TypeVar("A")
@@ -39,60 +36,66 @@ B = TypeVar("B")
 C = TypeVar("C")
 
 
-def order_subtotal(order: Order) -> float:
-    return sum(it["price"] * it["qty"] for it in order["items"])
+def final_premium(base: float, risk_coef: float, discount: float) -> float:
+    return base * risk_coef * (1 - discount)
 
 
-def with_total(order: Order, total: float) -> Order:
-    return {**order, "total": total}
+def with_premium(policy: Policy, premium: float) -> Policy:
+    return {**policy, "premium": premium}
 
 
 def make_processor(
     *,
     accept: FilterFn,
-    apply_discount: DiscountFn,
-    apply_tax: TaxFn,
+    risk_factor: RiskFn,
+    loyalty_discount: DiscountFn,
 ) -> Processor:
-    def process(orders: Iterable[Order]) -> Report:
+    def process(policies: Iterable[Policy]) -> Report:
         qualified = [
-            with_total(o, apply_tax(apply_discount(order_subtotal(o))))
-            for o in orders
-            if o["paid"] and accept(order_subtotal(o))
+            with_premium(
+                p,
+                final_premium(
+                    p["base_premium"], risk_factor(p["risk"]), loyalty_discount(p["years"])
+                ),
+            )
+            for p in policies
+            if p["active"] and accept(p["base_premium"])
         ]
         return {
             "count": len(qualified),
-            "revenue": sum(o["total"] for o in qualified),
-            "orders": qualified,
+            "total_premium": sum(p["premium"] for p in qualified),
+            "policies": qualified,
         }
 
     return process
 
 
-def min_total_filter(min_total: float) -> FilterFn:
-    return lambda subtotal: subtotal >= min_total
+def min_premium_filter(min_premium: float) -> FilterFn:
+    return lambda base: base >= min_premium
 
 
-def percent_discount(rate: float) -> DiscountFn:
-    return lambda amount: amount * (1 - rate)
+def table_risk(rates: Mapping[str, float], default: float = 1.0) -> RiskFn:
+    return lambda risk: rates.get(risk, default)
 
 
-def flat_tax(rate: float) -> TaxFn:
-    return lambda amount: amount * (1 + rate)
+def years_discount(rate_per_year: float, max_discount: float) -> DiscountFn:
+    return lambda years: min(years * rate_per_year, max_discount)
 
 
-def process_orders_pure(
-    orders: Iterable[Order],
+def process_policies_pure(
+    policies: Iterable[Policy],
     *,
-    min_total: float,
-    discount: float,
-    tax_rate: float,
+    min_premium: float,
+    risk_rates: Mapping[str, float],
+    discount_per_year: float,
+    max_discount: float,
 ) -> Report:
     process = make_processor(
-        accept=min_total_filter(min_total),
-        apply_discount=percent_discount(discount),
-        apply_tax=flat_tax(tax_rate),
+        accept=min_premium_filter(min_premium),
+        risk_factor=table_risk(risk_rates),
+        loyalty_discount=years_discount(discount_per_year, max_discount),
     )
-    return process(orders)
+    return process(policies)
 
 
 def compose(f: Callable[[B], C], g: Callable[[A], B]) -> Callable[[A], C]:
