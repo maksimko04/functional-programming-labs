@@ -5,5 +5,6 @@
 | Лабораторна | Тема |
 |---|---|
 | [lab01](lab01/) | Основи ФП: чисті функції, референтна прозорість, `typing.Callable` |
+| [lab02](lab02/) | Функції вищого порядку, lambda, композиція: конвеєр map/filter/reduce |
 
 Кожна `labN/` містить `README.md`, код, `tests/` (pytest) і звіт у PDF. Стиль: `black`, `ruff`; типи: `mypy --strict` (конфіг у `pyproject.toml`).
