@@ -14,15 +14,16 @@
 
 | Файл | Призначення |
 |---|---|
-| `core.py` | Чисте ядро: `final_premium`, `with_premium`, `make_processor` (фабрика обробника), `process_policies_pure`, фабрики політик `min_premium_filter` / `table_risk` / `years_discount`, `compose`, `make_multiplier`, `stamp_total` (інжекція годинника). Жодного I/O, глобалів і мутацій. |
-| `app.py` | Оболонка побічних ефектів: читання полісів із JSON, `render_report`, `print`, `time.time`. |
-| `starter_imperative.py` | Початковий імперативний код із завдання — лишений для тесту еквівалентності. |
-| `tests/test_core.py` | pytest: референтна прозорість, відсутність мутацій, збіг з імперативною версією, Callable-політики, `compose`, `make_multiplier`, `stamp_total`, `render_report`. |
-| `conftest.py` | Фікстура `sample_policies`. |
+| `core.py` | Чисте ядро варіанта 13: `final_premium`, `with_premium`, `make_policy_processor` (фабрика обробника), `process_policies_pure`, фабрики політик `min_premium_filter` / `table_risk` / `years_discount`; додаткові вправи `compose`, `make_multiplier`, `stamp_total` (інжекція годинника); базове завдання з методички: `order_subtotal`, `with_total`, `make_processor(accept, apply_discount, apply_tax)`, `process_orders_pure`. Жодного I/O, глобалів і мутацій. |
+| `app.py` | Оболонка побічних ефектів: читання полісів із JSON, `render_report`, `run` (базове завдання), `print`, `time.time`. |
+| `starter_imperative.py` | Початковий імперативний код (`process_orders` з методички та `process_policies` за варіантом) — лишений для тестів еквівалентності. |
+| `tests/test_core.py` | pytest для варіанта 13: референтна прозорість, відсутність мутацій, збіг з імперативною версією, Callable-політики, `compose`, `make_multiplier`, `stamp_total`, `render_report`. |
+| `tests/test_orders.py` | pytest для базового завдання (замовлення): мінімальні тести з методички. |
+| `conftest.py` | Фікстури `sample_policies`, `sample_orders`. |
 
 Політики передаються як `Callable[[float], bool]` (фільтр за базовою премією), `Callable[[str], float]`
 (коефіцієнт ризику) та `Callable[[int], float]` (знижка за стаж);
-`make_processor(accept=..., risk_factor=..., loyalty_discount=...)` повертає налаштований обробник
+`make_policy_processor(accept=..., risk_factor=..., loyalty_discount=...)` повертає налаштований обробник
 `Callable[[Iterable[Policy]], Report]`. `process_policies_pure` — окремий випадок, зібраний із фабрик політик.
 
 ## Як запускати

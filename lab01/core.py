@@ -1,7 +1,7 @@
-"""Чисте ядро: розрахунок страхових премій (варіант 13).
+"""Чисте ядро: страхові премії (варіант 13) і базове завдання (замовлення).
 
 Жодного I/O, глобального стану чи мутації вхідних даних.
-Усі політики (фільтр, коефіцієнт ризику, знижка за стаж) передаються як Callable.
+Усі політики передаються як Callable.
 """
 
 from __future__ import annotations
@@ -28,7 +28,8 @@ class Report(TypedDict):
 FilterFn = Callable[[float], bool]
 RiskFn = Callable[[str], float]
 DiscountFn = Callable[[int], float]
-Processor = Callable[[Iterable[Policy]], Report]
+AmountFn = Callable[[float], float]
+PolicyProcessor = Callable[[Iterable[Policy]], Report]
 NowFn = Callable[[], float]
 
 A = TypeVar("A")
@@ -44,12 +45,12 @@ def with_premium(policy: Policy, premium: float) -> Policy:
     return {**policy, "premium": premium}
 
 
-def make_processor(
+def make_policy_processor(
     *,
     accept: FilterFn,
     risk_factor: RiskFn,
     loyalty_discount: DiscountFn,
-) -> Processor:
+) -> PolicyProcessor:
     def process(policies: Iterable[Policy]) -> Report:
         qualified = [
             with_premium(
@@ -92,7 +93,7 @@ def process_policies_pure(
     discount_per_year: float,
     max_discount: float,
 ) -> Report:
-    process = make_processor(
+    process = make_policy_processor(
         accept=min_premium_filter(min_premium),
         risk_factor=table_risk(risk_rates),
         loyalty_discount=years_discount(discount_per_year, max_discount),
@@ -110,3 +111,71 @@ def make_multiplier(k: int) -> Callable[[int], int]:
 
 def stamp_total(total: float, now: NowFn) -> tuple[float, float]:
     return total, now()
+
+
+# --- базове завдання з методички: замовлення інтернет-магазину ---
+
+
+class Item(TypedDict):
+    price: float
+    qty: int
+
+
+class Order(TypedDict, total=False):
+    id: int
+    items: list[Item]
+    paid: bool
+    total: float
+
+
+class OrderReport(TypedDict):
+    count: int
+    revenue: float
+    orders: list[Order]
+
+
+Processor = Callable[[Iterable[Order]], OrderReport]
+
+
+def order_subtotal(order: Order) -> float:
+    return sum(it["price"] * it["qty"] for it in order["items"])
+
+
+def with_total(order: Order, total: float) -> Order:
+    return {**order, "total": total}
+
+
+def make_processor(
+    *,
+    accept: FilterFn,
+    apply_discount: AmountFn,
+    apply_tax: AmountFn,
+) -> Processor:
+    def process(orders: Iterable[Order]) -> OrderReport:
+        qualified = [
+            with_total(o, apply_tax(apply_discount(order_subtotal(o))))
+            for o in orders
+            if o["paid"] and accept(order_subtotal(o))
+        ]
+        return {
+            "count": len(qualified),
+            "revenue": sum(o["total"] for o in qualified),
+            "orders": qualified,
+        }
+
+    return process
+
+
+def process_orders_pure(
+    orders: Iterable[Order],
+    *,
+    min_total: float,
+    discount: float,
+    tax_rate: float,
+) -> OrderReport:
+    process = make_processor(
+        accept=lambda subtotal: subtotal >= min_total,
+        apply_discount=lambda amount: amount * (1 - discount),
+        apply_tax=lambda amount: amount * (1 + tax_rate),
+    )
+    return process(orders)

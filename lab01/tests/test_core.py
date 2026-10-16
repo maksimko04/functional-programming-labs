@@ -8,7 +8,7 @@ from core import (
     compose,
     final_premium,
     make_multiplier,
-    make_processor,
+    make_policy_processor,
     min_premium_filter,
     process_policies_pure,
     stamp_total,
@@ -83,7 +83,7 @@ def test_with_premium_returns_new_dict() -> None:
 
 
 def test_callable_policies(sample_policies: list[Policy]) -> None:
-    process = make_processor(
+    process = make_policy_processor(
         accept=lambda base: base >= 1000,
         risk_factor=lambda risk: 2.0 if risk == "high" else 1.0,
         loyalty_discount=lambda years: 0.5 if years >= 10 else 0.0,

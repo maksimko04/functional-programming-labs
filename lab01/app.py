@@ -7,7 +7,14 @@ import sys
 import time
 from pathlib import Path
 
-from core import Policy, Report, process_policies_pure, stamp_total
+from core import (
+    Order,
+    Policy,
+    Report,
+    process_orders_pure,
+    process_policies_pure,
+    stamp_total,
+)
 
 RISK_RATES = {"low": 0.9, "medium": 1.0, "high": 1.5}
 
@@ -30,6 +37,14 @@ def render_report(result: Report) -> str:
     return "\n".join(
         [*lines, f"Count: {result['count']}", f"Total: {result['total_premium']:.2f}"]
     )
+
+
+def run(orders: list[Order]) -> None:
+    """Оболонка базового завдання: друкує чистий результат process_orders_pure."""
+    result = process_orders_pure(orders, min_total=100, discount=0.1, tax_rate=0.2)
+    for o in result["orders"]:
+        print("Processed:", o["id"], "total:", o["total"])
+    print("Revenue:", result["revenue"])
 
 
 def main(argv: list[str]) -> None:
