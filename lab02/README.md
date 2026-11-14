@@ -17,6 +17,7 @@
 | Файл | Призначення |
 |---|---|
 | `core.py` | Чисте ядро. Композиція: `compose`, `pipe`, `juxt`. Варіант 13: `Parcel` (TypedDict), трансформації `with_cost` (map), `boost_region` (map), `min_cost` (filter), `normalize_senders` (map), `sort_by_cost_desc` (два ключі), `take` (islice), агрегація `reduce_delivery_stats`, збирання `build_delivery_pipeline`. Базовий приклад з методички (клієнти: `only_adults`, `with_total`, `boost_city`, `normalize_names`, `sort_by_total_desc`, `take_records`, `reduce_stats`, `build_pipeline`). |
+| `main.py` | Точка входу: `python main.py`, викликає `app.main`. |
 | `app.py` | Оболонка I/O та CLI (argparse): читання JSON, рендер і друк результату. |
 | `sample_data.json` | Приклад вхідних даних. |
 | `tests/test_core.py` | pytest: Top-N і тай-брейкер, відсутність мутацій, фільтр за порогом, reduce-агрегація, еквівалентність композиції ручному ланцюжку, `pipe`/`juxt`, базовий конвеєр. |
@@ -31,8 +32,8 @@
 
 ```bash
 pip install -r requirements.txt
-python app.py --top 3 --boost-region West --factor 1.2 --min-cost 50
-python app.py --data sample_data.json --top 2
+python main.py --top 3 --boost-region West --factor 1.2 --min-cost 50
+python main.py --data sample_data.json --top 2
 
 pytest
 mypy .

@@ -15,6 +15,7 @@
 | Файл | Призначення |
 |---|---|
 | `core.py` | Чисте ядро варіанта 13: `final_premium`, `with_premium`, `make_policy_processor` (фабрика обробника), `process_policies_pure`, фабрики політик `min_premium_filter` / `table_risk` / `years_discount`; додаткові вправи `compose`, `pipe`, `make_multiplier`, `stamp_total` (інжекція годинника); базове завдання з методички: `order_subtotal`, `with_total`, `make_processor(accept, apply_discount, apply_tax)`, `process_orders_pure`. Жодного I/O, глобалів і мутацій. |
+| `main.py` | Точка входу: `python main.py`, викликає `app.main`. |
 | `app.py` | Оболонка побічних ефектів: читання полісів із JSON, `render_report`, `run` (базове завдання), `print`, `time.time`. |
 | `starter_imperative.py` | Початковий імперативний код (`process_orders` з методички та `process_policies` за варіантом) — лишений для тестів еквівалентності. |
 | `tests/test_core.py` | pytest для варіанта 13: референтна прозорість, відсутність мутацій, збіг з імперативною версією, Callable-політики, `compose`, `make_multiplier`, `stamp_total`, `render_report`. |
@@ -31,8 +32,8 @@
 
 ```bash
 pip install -r requirements.txt
-python app.py              # вбудований приклад
-python app.py policies.json  # поліси з файлу (список об'єктів {id, base_premium, risk, years, active})
+python main.py              # вбудований приклад
+python main.py policies.json  # поліси з файлу (список об'єктів {id, base_premium, risk, years, active})
 
 pytest
 mypy .

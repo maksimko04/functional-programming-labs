@@ -18,6 +18,7 @@
 |---|---|
 | `closures.py` | `make_counter` (стан через `nonlocal`), `make_logger(prefix, sink)`, `make_token_registry` (замикання над `frozenset` токенів), `make_revocable_registry` (пара `verify` / `revoke` над спільним станом). |
 | `decorators.py` | `timed(label, unit, logger, clock)` — лог часу у `finally`; `retries(attempts, exceptions, delay, backoff, jitter, sleep, logger, rand)` — експоненційний бекоф; `cached(ttl, time_fn)` — TTL-кеш з `cache_clear` / `cache_invalidate(predicate)` / `cache_size` (типізовано через `Protocol` `CachedFn` + `cast`); `authorized(verify, logger)` — варіант 13, токен першим позиційним аргументом (`Concatenate[str, P]`), власний `AuthError`. |
+| `main.py` | Точка входу: `python main.py`, викликає `app.main`. |
 | `app.py` | Демо: нестабільний `remote_verify` під `@retries`, захищена `account_balance` = `timed(authorized(cached(compute_balance)))`; `sleep` і `clock` підмінені. |
 | `tests/test_closures.py` | Стан лічильника, незалежність замикань, логер із sink, реєстри токенів, 2 property-тести. |
 | `tests/test_timed.py` | Фейковий годинник і логер, лог при винятку, одиниці виміру, `__name__` / `__doc__` / `__wrapped__`. |
@@ -43,7 +44,7 @@ account_balance = timed(...)(authorized(remote_verify)(cached(...)(compute_balan
 
 ```bash
 pip install -r requirements.txt
-python app.py
+python main.py
 
 pytest
 mypy .
